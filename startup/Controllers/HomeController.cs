@@ -7,10 +7,12 @@ namespace startup.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly DataContext _Context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,DataContext context)
         {
             _logger = logger;
+            _Context = context;
         }
 
         public IActionResult Index()
@@ -21,6 +23,20 @@ namespace startup.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+        [Route("/post-{slug}-{id:long}.html",Name = "Details")]
+        public IActionResult Details(long? id)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+            var post = _Context.Posts.FirstOrDefault(m=>(m.PostID == id) && (m.IsActive == true));
+            if(post == null)
+            {
+                return NotFound();
+            }
+                   return View(post);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
